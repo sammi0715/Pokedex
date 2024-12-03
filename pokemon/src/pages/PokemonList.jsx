@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Pagination from "../components/Pagination";
+import PokemonDetailCard from "../components/PokemonDetailCard";
 import { fetchPokemonDetails, fetchPokemonList } from "../utils/api";
+import { typeColors } from "../utils/color-scheme";
 function PokemonList() {
   const ITEMS_PER_PAGE = 20;
   const TOTAL_POKEMON = 1302;
@@ -12,27 +14,9 @@ function PokemonList() {
   const [offset, setOffset] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pokemonDetails, setPokemonDetails] = useState({});
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
-  const typeColors = {
-    normal: "#c2c2a1",
-    fire: "#fb6c6c",
-    water: "#609fb5",
-    electric: "#ffd86f",
-    grass: "#48d0b0",
-    ice: "#7fccec",
-    fighting: "#d6b591",
-    poison: "#7c538c",
-    ground: "#b1736c",
-    flying: "#bab0d5",
-    psychic: "#9b7fa6",
-    bug: "#c3ce75",
-    rock: "#a6aab6",
-    ghost: "#7c538c",
-    dragon: "#f9be00",
-    dark: "#333333",
-    steel: "#ccccde",
-    fairy: "#f469a9",
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,6 +62,21 @@ function PokemonList() {
     return idMatch ? idMatch[1] : null;
   };
 
+  const handlePokemonClick = async (pokemonName) => {
+    try {
+      const data = await fetchPokemonDetails(pokemonName);
+      setSelectedPokemon(data);
+      setIsModalOpen(true);
+    } catch (err) {
+      console.error("Failed to fetch Pokemon details", err);
+    }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedPokemon(null);
+  };
+
   if (error) {
     return <div>錯誤：{error}</div>;
   }
@@ -95,6 +94,16 @@ function PokemonList() {
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-12">
         {pokemon.map((p) => {
           const id = extractPokemonId(p.url);
+          const types = pokemonDetails[id] || [];
+          let backgroundColor = "#fff";
+
+          if (types.length > 0) {
+            if (types[0] === "normal" && types.length > 1) {
+              backgroundColor = typeColors[types[1]];
+            } else {
+              backgroundColor = typeColors[types[0]];
+            }
+          }
           return (
             <li
               key={p.name}
@@ -103,14 +112,15 @@ function PokemonList() {
               <p className="text-gray-400 text-right">#{id}</p>
               <div
                 style={{
-                  backgroundColor: pokemonDetails[id] ? typeColors[pokemonDetails[id][0]] : "#fff",
+                  backgroundColor,
                 }}
-                className="p-2 bg-red-200 rounded-full"
+                className="p-2 rounded-full"
               >
                 <img
                   src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
                   alt={p.name}
                   className="p-4 bg-white bg-opacity-60 rounded-full"
+                  onClick={() => handlePokemonClick(p.name)}
                 />
               </div>
               <h1 className="text-gray-600 text-center mt-2 capitalize">{p.name}</h1>
@@ -118,6 +128,7 @@ function PokemonList() {
           );
         })}
       </ul>
+      <PokemonDetailCard isOpen={isModalOpen} onClose={closeModal} pokemon={selectedPokemon} />
       <Pagination
         currentPage={currentPage}
         totalPages={TOTAL_PAGES}
