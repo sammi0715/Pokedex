@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import DigimonDetailCard from "../components/DigimonDetailCard";
+import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
 import { fetchDigimonDetails, fetchDigimonList } from "../utils/api";
 import { attributeColors } from "../utils/color-scheme";
@@ -13,14 +15,20 @@ function DigimonList() {
   const [digimon, setDigimon] = useState([]);
   const [error, setError] = useState(null);
   const [digimonDetails, setDigimonDetails] = useState({});
+  const [selectedDigimonId, setSelectedDigimonId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchDigimonList(currentPage, ITEMS_PER_PAGE);
         setDigimon(data.content);
+        setLoading(true);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -51,6 +59,15 @@ function DigimonList() {
       setCurrentPage(page);
     }
   };
+  const handleDigimonClick = (id) => {
+    setSelectedDigimonId(id);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedDigimonId(null);
+    setIsModalOpen(false);
+  };
 
   if (error) {
     return <div>錯誤：{error}</div>;
@@ -65,40 +82,47 @@ function DigimonList() {
           Digimon
         </h1>
       </header>
-
-      <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-12">
-        {digimon.map((d) => {
-          const primaryAttribute = digimonDetails[d.id]?.[0] || "None";
-          const backgroundColor = attributeColors[primaryAttribute] || "#fff";
-          return (
-            <li
-              key={d.id}
-              className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl"
-            >
-              <p className="text-gray-400 text-right">#{d.id}</p>
-              <div
-                style={{
-                  aspectRatio: "1 / 1",
-                  backgroundColor,
-                }}
-                className="p-2 rounded-full  overflow-hidden flex items-center justify-center"
+      {loading ? (
+        <Loading itemsPerPage={ITEMS_PER_PAGE} />
+      ) : (
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 md:p-12">
+          {digimon.map((d) => {
+            const primaryAttribute = digimonDetails[d.id]?.[0] || "None";
+            const backgroundColor = attributeColors[primaryAttribute] || "#fff";
+            return (
+              <li
+                key={d.id}
+                className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl"
+                onClick={() => handleDigimonClick(d.id)}
               >
-                <img
-                  src={d.image}
-                  alt={d.name}
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-              <h1 className="text-gray-600 text-center mt-2 capitalize">{d.name}</h1>
-            </li>
-          );
-        })}
-      </ul>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={TOTAL_PAGES}
-        onPageChange={handlePageChange}
-      />
+                <p className="text-gray-400 text-right">#{d.id}</p>
+                <div
+                  style={{
+                    aspectRatio: "1 / 1",
+                    backgroundColor,
+                  }}
+                  className="p-2 rounded-full  overflow-hidden flex items-center justify-center"
+                >
+                  <img
+                    src={d.image}
+                    alt={d.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+                <h1 className="text-gray-600 text-center mt-2 capitalize break-words">{d.name}</h1>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <DigimonDetailCard isOpen={isModalOpen} onClose={closeModal} digimonId={selectedDigimonId} />
+      <div className="bottom-0">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={TOTAL_PAGES}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }
