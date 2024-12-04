@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
 import PokemonDetailCard from "../components/PokemonDetailCard";
 import { fetchPokemonDetails, fetchPokemonList } from "../utils/api";
 import { typeColors } from "../utils/color-scheme";
+
 function PokemonList() {
   const ITEMS_PER_PAGE = 20;
   const TOTAL_POKEMON = 1302;
@@ -17,6 +19,7 @@ function PokemonList() {
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,8 +27,11 @@ function PokemonList() {
         const data = await fetchPokemonList(ITEMS_PER_PAGE, offset);
 
         setPokemon(data.results);
+        setLoading(true);
       } catch (err) {
         setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -91,49 +97,55 @@ function PokemonList() {
           Pokémon
         </h1>
       </header>
-      <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-12">
-        {pokemon.map((p) => {
-          const id = extractPokemonId(p.url);
-          const types = pokemonDetails[id] || [];
-          let backgroundColor = "#fff";
+      {loading ? (
+        <Loading itemsPerPage={ITEMS_PER_PAGE} />
+      ) : (
+        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 md:p-12">
+          {pokemon.map((p) => {
+            const id = extractPokemonId(p.url);
+            const types = pokemonDetails[id] || [];
+            let backgroundColor = "#fff";
 
-          if (types.length > 0) {
-            if (types[0] === "normal" && types.length > 1) {
-              backgroundColor = typeColors[types[1]];
-            } else {
-              backgroundColor = typeColors[types[0]];
+            if (types.length > 0) {
+              if (types[0] === "normal" && types.length > 1) {
+                backgroundColor = typeColors[types[1]];
+              } else {
+                backgroundColor = typeColors[types[0]];
+              }
             }
-          }
-          return (
-            <li
-              key={p.name}
-              className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl"
-            >
-              <p className="text-gray-400 text-right">#{id}</p>
-              <div
-                style={{
-                  backgroundColor,
-                }}
-                className="p-2 rounded-full"
+            return (
+              <li
+                key={p.name}
+                className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl"
+                onClick={() => handlePokemonClick(p.name)}
               >
-                <img
-                  src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
-                  alt={p.name}
-                  className="p-4 bg-white bg-opacity-60 rounded-full"
-                  onClick={() => handlePokemonClick(p.name)}
-                />
-              </div>
-              <h1 className="text-gray-600 text-center mt-2 capitalize">{p.name}</h1>
-            </li>
-          );
-        })}
-      </ul>
+                <p className="text-gray-400 text-right">#{id}</p>
+                <div
+                  style={{
+                    backgroundColor,
+                  }}
+                  className="p-2 rounded-full"
+                >
+                  <img
+                    src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`}
+                    alt={p.name}
+                    className="p-4 bg-white bg-opacity-60 rounded-full"
+                  />
+                </div>
+                <h1 className="text-gray-600 text-center mt-2 capitalize">{p.name}</h1>
+              </li>
+            );
+          })}
+        </ul>
+      )}
       <PokemonDetailCard isOpen={isModalOpen} onClose={closeModal} pokemon={selectedPokemon} />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={TOTAL_PAGES}
-        onPageChange={handlePageChange}
-      />
+      <div className="bottom-0">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={TOTAL_PAGES}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }
