@@ -47,8 +47,8 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
             </span>
           ))}
         </div>
-        <p className="text-black">{pokemon.type}</p>
-        <div className="w-full h-full z-20">
+
+        <div className="w-48 h-48 md:w-56 md:h-56 lg:w-60 lg:h-60 z-20">
           <img
             src={pokemon.sprites?.other?.["official-artwork"]?.front_default}
             alt={pokemon.name}
@@ -119,7 +119,7 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
             </div>
           )}
 
-          {/* // Base stats section */}
+          {/*  Base stats section */}
           {activeTab === "stats" && (
             <div className="p-4">
               <table className="w-full text-left">
