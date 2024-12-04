@@ -21,9 +21,11 @@ export const typeColors = {
 };
 //Digimon palette
 export const attributeColors = {
-    Vaccine: "#48D1CC",
-    Data: "#FFD700",
-    Virus: "#FF4500",
-    Free: "#9370DB",
-    None: "#C0C0C0",
+    Vaccine: "#7fccec",
+    Data: "#a6aab6",
+    Virus: "#7c538c",
+    Free: "#969aa4",
+    Variable: "#c3ce75",
+    "No Data": "#c2c2a1",
+    None: "#c2c2a1",
 };
