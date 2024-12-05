@@ -2,16 +2,22 @@ import React, { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { fetchAndProcessPokemonEvolutionChain, fetchPokemonSpecies } from "../utils/api";
 import { typeColors } from "../utils/color-scheme";
+import Loading from "./Loading";
 function PokemonDetailCard({ isOpen, onClose, pokemon }) {
   if (!isOpen || !pokemon) return null;
+
   const [activeTab, setActiveTab] = useState("about");
   const [evolutionChain, setEvolutionChain] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const primaryType = pokemon.types?.[0]?.type?.name || "normal";
   const backgroundColor = typeColors[primaryType] || "#fff";
+
   useEffect(() => {
     if (activeTab === "evolution") {
       const fetchEvolution = async () => {
+        setLoading(true);
         try {
           const speciesData = await fetchPokemonSpecies(pokemon.id);
           const chain = await fetchAndProcessPokemonEvolutionChain(speciesData.evolution_chain.url);
@@ -19,12 +25,18 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
           setEvolutionChain(chain);
         } catch (err) {
           setError("Failed to fetch evolution chain");
+        } finally {
+          setLoading(false);
         }
       };
 
       fetchEvolution();
     }
   }, [activeTab, pokemon]);
+
+  if (loading) {
+    return <Loading type="indicator" message="Catching..." />;
+  }
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
@@ -56,7 +68,7 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
           />
         </div>
 
-        <div className="mt-4 p-4 lg:p-8 w-full h-full  text-center bg-white shadow-2xl rounded-2xl z-10 overflow-y-auto">
+        <div className="mt-4 p-4 lg:p-8 w-full h-full text-center bg-white shadow-2xl rounded-2xl z-10 overflow-y-auto">
           <div className="flex justify-around border-b">
             <button
               className={`py-2 px-4 ${
@@ -89,7 +101,7 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
               Evolution
             </button>
           </div>
-          {/* //About section */}
+          {/* About section */}
           {activeTab === "about" && (
             <div className="p-4">
               <table className="w-full text-left">
@@ -119,7 +131,7 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
             </div>
           )}
 
-          {/*  Base stats section */}
+          {/* Base stats section */}
           {activeTab === "stats" && (
             <div className="p-4">
               <table className="w-full text-left">
@@ -166,7 +178,7 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
                               style={{
                                 aspectRatio: "1 / 1",
                               }}
-                              className=" rounded-full border-2 border-gray-300"
+                              className="rounded-full border-2 border-gray-300"
                             />
                           </div>
 

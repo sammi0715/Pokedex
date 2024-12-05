@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { fetchDigimonDetails } from "../utils/api";
 import { attributeColors } from "../utils/color-scheme";
+import Loading from "./Loading";
 
 function DigimonDetailCard({ isOpen, onClose, digimonId }) {
   const [activeTab, setActiveTab] = useState("about");
   const [digimon, setDigimon] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const primaryAttribute = digimon?.attributes?.[0]?.attribute || "None";
@@ -13,11 +15,14 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
   const backgroundColor = attributeColors[primaryAttribute] || "#fff";
   useEffect(() => {
     const fetchDetails = async () => {
+      setLoading(true);
       try {
         const data = await fetchDigimonDetails(digimonId);
         setDigimon(data);
       } catch (err) {
         setError("Failed to fetch Digimon details.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -29,7 +34,9 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
   }, [isOpen, digimonId]);
 
   if (!isOpen || !digimon) return null;
-
+  if (loading) {
+    return <Loading type="indicator" message="Catching..." />;
+  }
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
       <div
