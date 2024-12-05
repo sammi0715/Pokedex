@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { FaHome } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import pokeLogo from "../assets/poke-logo.png";
+import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
 import PokemonDetailCard from "../components/PokemonDetailCard";
@@ -18,45 +20,47 @@ function PokemonList() {
   const [pokemonDetails, setPokemonDetails] = useState({});
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingSelectedPokemon, setLoadingSelectedPokemon] = useState(false);
+
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await fetchPokemonList(ITEMS_PER_PAGE, offset);
-
-        setPokemon(data.results);
-        setLoading(true);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchPokemonList(ITEMS_PER_PAGE, offset);
+      const details = await Promise.all(
+        data.results.map(async (p) => {
+          const id = extractPokemonId(p.url);
+          const detailsData = await fetchPokemonDetails(id);
+          return { id, types: detailsData.types.map((t) => t.type.name) };
+        })
+      );
+      setPokemon(data.results);
+      setPokemonDetails(Object.fromEntries(details.map((d) => [d.id, d.types])));
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        setError({ message: "Data not found, please try again later!", type: "server" });
+      } else if (err.message === "Network Error") {
+        setError({
+          message: "Network error, please check your internet connection!",
+          type: "network",
+        });
+      } else {
+        setError({
+          message: "An unknown error occurred, please try again later!",
+          type: "unknown",
+        });
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, [offset]);
-
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        const details = await Promise.all(
-          pokemon.map(async (p) => {
-            const id = extractPokemonId(p.url);
-            const data = await fetchPokemonDetails(id);
-            return { id, types: data.types.map((t) => t.type.name) };
-          })
-        );
-        const detailsMap = Object.fromEntries(details.map((d) => [d.id, d.types]));
-        setPokemonDetails(detailsMap);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    if (pokemon.length > 0) {
-      fetchDetails();
-    }
-  }, [pokemon]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -75,6 +79,9 @@ function PokemonList() {
       setIsModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch Pokemon details", err);
+      alert("無法載入寶可夢詳細資料，請稍後再試。");
+    } finally {
+      setLoadingSelectedPokemon(false);
     }
   };
 
@@ -83,22 +90,20 @@ function PokemonList() {
     setSelectedPokemon(null);
   };
 
-  if (error) {
-    return <div>錯誤：{error}</div>;
-  }
   return (
     <div className="min-h-screen bg-gradient-to-l-pokemon p-4">
-      <header className="relative flex items-center py-4 px-6">
-        <Link to="/" className="z-10">
-          <FaHome className="w-8 h-8 cursor-pointer" />
-        </Link>
-
-        <h1 className="flex absolute inset-0 text-4xl text-center items-center justify-center">
-          Pokémon
-        </h1>
+      <header className="relative flex items-center justify-center py-4 px-6">
+        <div className="w-12 h-12 md:w-14 md:h-14 bg-white bg-opacity-50 absolute left-6  items-center flex justify-center rounded-full">
+          <Link to="/" className="">
+            <FaHome className="w-8 h-8 md:w-10 md:h-10 text-blue-700 hover:text-blue-900 cursor-pointer" />
+          </Link>
+        </div>
+        <img src={pokeLogo} className="w-[150px] md:w-[300px]" alt="Pokemon Logo" />
       </header>
-      {loading ? (
-        <Loading itemsPerPage={ITEMS_PER_PAGE} />
+      {error ? (
+        <ErrorMessage message={`Error：${error.message}`} onRetry={fetchData} type={error.type} />
+      ) : loading ? (
+        <Loading type="list" message="Gotta catch 'em all..." itemsPerPage={ITEMS_PER_PAGE} />
       ) : (
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4 md:p-12">
           {pokemon.map((p) => {
@@ -116,7 +121,7 @@ function PokemonList() {
             return (
               <li
                 key={p.name}
-                className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl"
+                className="bg-white bg-opacity-50 shadow-md flex flex-col p-4 mb-4 rounded-xl transform transition duration-300 hover:scale-105 hover:shadow-lg"
                 onClick={() => handlePokemonClick(p.name)}
               >
                 <p className="text-gray-400 text-right">#{id}</p>
