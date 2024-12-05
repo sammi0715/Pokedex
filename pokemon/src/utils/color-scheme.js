@@ -19,6 +19,15 @@ export const typeColors = {
     steel: "#ccccde",
     fairy: "#f469a9",
 };
+export const statColors = {
+    hp: "#FF5959",
+    attack: "#F5AC78",
+    defense: "#FAE078",
+    'special-attack': "#9DB7F5",
+    'special-defense': "#A7DB8D",
+    speed: "#af78d6",
+};
+
 //Digimon palette
 export const attributeColors = {
     Vaccine: "#7fccec",
