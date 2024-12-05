@@ -1,5 +1,5 @@
 import React from "react";
-import { MdCatchingPokemon } from "react-icons/md";
+import pokeball from "../assets/pokeball.png";
 const Loading = ({ itemsPerPage = 20 }) => {
   return (
     <div className="relative min-h-screen">
@@ -20,10 +20,7 @@ const Loading = ({ itemsPerPage = 20 }) => {
       </ul>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center z-50">
-        <MdCatchingPokemon
-          className="w-28 h-28 mb-6 animate-spin-color-change"
-          style={{ transformOrigin: "center" }}
-        />
+        <img src={pokeball} alt="pokeball" className="w-28 h-28 mb-6 animate-spin" />
 
         <p className="text-2xl ">Catching...</p>
       </div>
