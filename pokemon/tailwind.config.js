@@ -12,15 +12,12 @@ export default {
         'gradient': "url('/src/assets/pokemon-gradient-flash.png')",
       },
       animation: {
-        "spin-color-change": "spin 1s linear infinite, color-change 1s ease-in-out infinite",
+        "spin": "spin 0.6s linear infinite",
         marquee: "marquee 15s linear infinite",
         "marquee-reverse": "marquee-reverse 15s linear infinite",
       },
       keyframes: {
-        'color-change': {
-          "0%, 100%": { color: "#F34F44" },
-          "50%": { color: "#368AFF" },
-        },
+
         'marquee': {
           from: {
             transform: "translateX(0%)",
