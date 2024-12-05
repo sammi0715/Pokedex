@@ -20,7 +20,6 @@ function PokemonList() {
   const [pokemonDetails, setPokemonDetails] = useState({});
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loadingSelectedPokemon, setLoadingSelectedPokemon] = useState(false);
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -79,9 +78,7 @@ function PokemonList() {
       setIsModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch Pokemon details", err);
-      alert("無法載入寶可夢詳細資料，請稍後再試。");
-    } finally {
-      setLoadingSelectedPokemon(false);
+      alert("Failed to load Pokémon details. Please try again later");
     }
   };
 
