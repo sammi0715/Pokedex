@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa6";
 import { fetchAndProcessPokemonEvolutionChain, fetchPokemonSpecies } from "../utils/api";
-import { typeColors } from "../utils/color-scheme";
+import { statColors, typeColors } from "../utils/color-scheme";
 import Loading from "./Loading";
 function PokemonDetailCard({ isOpen, onClose, pokemon }) {
   if (!isOpen || !pokemon) return null;
@@ -145,10 +145,11 @@ function PokemonDetailCard({ isOpen, onClose, pokemon }) {
                       <td className="w-full">
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            style={{ width: `${(s.base_stat / 100) * 100}%` }}
-                            className={`h-full rounded-full ${
-                              s.base_stat > 100 ? "bg-green-500" : "bg-red-500"
-                            }`}
+                            style={{
+                              width: `${(s.base_stat / 150) * 100}%`,
+                              backgroundColor: statColors[s.stat.name] || "#ccc",
+                            }}
+                            className="h-full rounded-full"
                           ></div>
                         </div>
                       </td>
