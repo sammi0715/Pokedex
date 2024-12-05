@@ -14,6 +14,7 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
 
   const backgroundColor = attributeColors[primaryAttribute] || "#fff";
   useEffect(() => {
+    setError(null);
     const fetchDetails = async () => {
       setLoading(true);
       try {
@@ -28,6 +29,7 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
 
     if (isOpen && digimonId) {
       fetchDetails();
+      setActiveTab("about");
     } else {
       setDigimon(null);
     }
