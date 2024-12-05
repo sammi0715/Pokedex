@@ -28,6 +28,7 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
 
     if (isOpen && digimonId) {
       fetchDetails();
+      setActiveTab("about");
     } else {
       setDigimon(null);
     }
@@ -43,6 +44,11 @@ function DigimonDetailCard({ isOpen, onClose, digimonId }) {
         style={{ backgroundColor }}
         className="bg-white rounded-2xl shadow-xl relative w-[85%] h-[80%] md:w-[600px] md:h-[650px] flex flex-col items-center"
       >
+        {error && (
+          <div className="absolute top-0 w-full bg-red-100 text-red-500 text-center py-2 rounded-t-lg">
+            {error}
+          </div>
+        )}
         <FaArrowLeft className="absolute left-2 top-4 w-6 h-6" onClick={onClose} />
         <h2 className="text-3xl capitalize text-center mt-8">{digimon.name}</h2>
         <span className="text-3xl text-right text-white text-opacity-50 absolute top-5 right-5">
