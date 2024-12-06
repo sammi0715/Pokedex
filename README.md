@@ -2,7 +2,7 @@
 
 # Pokémon X Digimon 圖鑑
 
-這是一個以 **React** 搭配 **Vite** 開發的專案，旨在展示 Pokémon 與 Digimon 的資訊，並提供分頁與分類的功能，讓使用者能快速瀏覽及檢索相關內容。  
+這是一個以 **React** 搭配 **Vite** 開發的專案，展示 Pokémon 與 Digimon 的資訊，並提供分頁與分類的功能，讓使用者能快速瀏覽內容。  
 Demo：[Pokémon X Digimon 圖鑑](https://pokedex-mu-woad.vercel.app)
 
 ## 🎯 專案特色
@@ -37,7 +37,7 @@ Demo：[Pokémon X Digimon 圖鑑](https://pokedex-mu-woad.vercel.app)
 
 1. **clone專案到本地**
    ```bash
-   git clone https://github.com/your-repo/pokemon-digimon-app.git
+   git clone git@github.com:sammi0715/Pokedex.git
    cd pokemon
    ```
 
